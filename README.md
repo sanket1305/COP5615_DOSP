@@ -14,9 +14,14 @@ In both these examples, sums of squares of consecutive integers from the square 
 Task: Given n, k, find sequences of k consecutive numbers s1, s2, s3,.......sk in the range(1, n), such that s1^2 + s2^2 + s3^2 + .....+ sk^2 = S^2 where S is a Natural Number.
 
 # Code:
-This is an Asynchronised Multi-Actor model that employs paralellism.
-The Main actor is the snippet where the actors return after their work is done. Here, we take 
+This is an _Asynchronised_ Multi-Actor model that employs _Parallelism_.
+The Main actor is the snippet where the actors return after they are done. Here, we initialize
 > num_actors = n/(2*k) + 1.
+> chunk_size _(size of Work Unit)_ = (n+k)/num_actors
+We assign each chunk_size to each actor to scan for a sequence in that particular chunk. We initialize two iterators _start_ and _finish_ to determine the size of each work unit for an actor and keep track of actors that finished using __pending_actors_.
+> start = finish + (2 - k)
+> finish = (start + chunk_size + k)
+> _pending_actors = num_actors
 ```
 let _env: Env
   var _pending_actors: U128 = 0
