@@ -48,17 +48,52 @@ let _env: Env
     else
       _env.out.print("Please enter valid numbers")
     end
-    
-
-  be partial_sum(result: U128) =>
+```
+We run a _while loop_ which calls the _Luca_ function from the other Actor that has the logic that does the computation and search.
+The **behaviour** _partial_sum_ of the Main Actor handles the actors that returned after they finish and updates the __pending_actors_. It returns altogether at the end of the program.
+```
+be partial_sum(result: U128) =>
     _pending_actors = _pending_actors - 1
     if _pending_actors == 0 then
       _env.out.print("Done!!!")
     end
 ```
+The Actor Luca as mentioned above has the computation and search algorithm for each Actor and it's chunk_size.
+```
+actor Luca
+  let _main: Main
+  let _start: U128
+  let _finish: U128
+  let _k: U128
+  let _env: Env
 
+  new create(main: Main, start: U128, not_start: U128, k: U128, env: Env) =>
+    _main = main
+    _start = start
+    _finish = not_start
+    _k = k
+    _env = env
+    calculate_sum()
 
-
-
+  fun calculate_sum() =>
+    var sum: U128 = 0
+    var count : U128 = 0
+    var i: U128 = _start
+    while (i < (_finish + 1)) do
+      sum = sum + (i*i)
+      i = i + 1
+      count = count + 1
+      if count == _k then
+        var res : F64 = sum.f64().sqrt()
+        let isint : Bool = ((res - res.floor()) == 0)
+        if isint then
+          _env.out.print((i-_k).string())
+        end
+          sum = sum - ((i-_k)*(i-_k))
+          count = count - 1
+      end
+    end
+    _main.partial_sum(0)
+```
 
 
