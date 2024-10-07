@@ -97,6 +97,8 @@ actor Node
                 end
                 if (diff <= 0.0000000001) and (cnt < 3) then
                     cnt = cnt + 1
+                else
+                    cnt = 0
                 end
             end
         end
@@ -159,10 +161,6 @@ actor Network
         | "full" =>
             full_topology()
         end
-
-    // be start_gossip(initial_node: USize, rumour: String) =>
-    
-    // be push_sum(initial_node: USize, rumour: String) =>
         
     be call_algo(initial_node: USize, rumour: String) =>
         match _algo
@@ -179,13 +177,19 @@ actor Network
 actor Main
     let _rand: Random
     new create(env: Env) =>
-        // let network1 = Network(10, "full", "gossip", env) // Create a linear network with 10 nodes
-        // network1.setup_topology()
         _rand = Rand(Time.nanos())
-        // network1.call_algo(0, "Hello, Pony!")
-        // env.out.print("Network 1 terminated")
-        let network2 = Network(10, "full", "pushsum", env)
-        network2.setup_topology()
-        network2.call_algo(0, "Hello, Pony!")
-        // env.out.print("Network 2 terminated")
+        try
+            let n = env.args(1)?.usize()?
+            let topo = env.args(2)?
+            let algo = env.args(3)?
+            let network = Network(n, topo, algo, env)
+            network.setup_topology()
+            network.call_algo(0, "Hello, Pony!")
+        end
+        
+
+
+
+
+        
 
