@@ -24,7 +24,6 @@ actor Node
         _rand = Rand
         _n = n
         algorithm = algo
-        // s = id.u64().f64()
         try
             s = id.f64()?
         else
@@ -91,7 +90,6 @@ actor Node
                 w = w + w'
                 let new_ratio = s/w
                 let diff = abs(ratio - new_ratio)
-                // _env.out.print(diff.string())
                 if cnt<3 then
                     spread_gossip()
                 end
@@ -153,7 +151,7 @@ actor Network
             end
             node.set_neighbors(neighbors)
         end
-
+    
     be setup_topology() =>
         match _topo
         | "linear" =>
@@ -175,21 +173,20 @@ actor Network
         end
 
 actor Main
-    let _rand: Random
     new create(env: Env) =>
-        _rand = Rand(Time.nanos())
+        let start = Time.nanos()
         try
             let n = env.args(1)?.usize()?
             let topo = env.args(2)?
             let algo = env.args(3)?
+            if n < 2 then
+                env.out.print("Enter a number greater than 2")
+
+            end
             let network = Network(n, topo, algo, env)
             network.setup_topology()
             network.call_algo(0, "Hello, Pony!")
         end
+        let theEnd = Time.nanos()
+        env.out.print((theEnd-start).string())
         
-
-
-
-
-        
-
