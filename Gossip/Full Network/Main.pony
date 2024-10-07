@@ -10,7 +10,7 @@ actor Node
     let _env : Env
     var _n : U64
 
-    new create(id: String, n: U64, env : Env) => // 
+    new create(id: String, n: U64, env : Env) =>
         _id = id
         _neighbors = Array[Node tag]
         _rumour = None
@@ -33,7 +33,7 @@ actor Node
             spread_rumour()
         | let r: String =>
             if r == rumour then
-                _env.out.print("Received the message: " + rumour)
+                _env.out.print(_id + " Received the message: " + rumour)
                 _rumour_count = _rumour_count + 1
                 if _rumour_count < _n then
                     spread_rumour()
@@ -68,42 +68,47 @@ actor Network
             nodes.push(Node(i.string(), 10, env))
         end
         _nodes = consume nodes
+    
+    fun linear_topology() =>
+        for i in Range(0, _size) do
+            let neighbors = recover val
+                let arr = Array[Node tag]
+                if i>0 then
+                    try
+                        arr.push(_nodes(i-1)?)
+                    end
+                end
+                if i<(_size-1) then
+                    try
+                        arr.push(_nodes(i+1)?)
+                    end
+                end
+                arr
+            end
+            try
+                _nodes(i)?.set_neighbors(neighbors)
+            end
+        end
+    fun full_topology() =>
+        for node in _nodes.values() do
+            let neighbors = recover val
+                let arr = Array[Node tag]
+                for neighbor in _nodes.values() do
+                    if neighbor isnt node then
+                        arr.push(neighbor)
+                    end
+                end
+                arr
+            end
+            node.set_neighbors(neighbors)
+        end
 
     be setup_topology() =>
         match _topo
         | "linear" =>
-            for i in Range(0, _size) do
-                let neighbors = recover val
-                    let arr = Array[Node tag]
-                    if i>0 then
-                        try
-                            arr.push(_nodes(i-1)?)
-                        end
-                    end
-                    if i<(_size-1) then
-                        try
-                            arr.push(_nodes(i+1)?)
-                        end
-                    end
-                    arr
-                end
-                try
-                    _nodes(i)?.set_neighbors(neighbors)
-                end
-            end
+            linear_topology()
         | "full" =>
-            for node in _nodes.values() do
-                let neighbors = recover val
-                    let arr = Array[Node tag]
-                    for neighbor in _nodes.values() do
-                        if neighbor isnt node then
-                            arr.push(neighbor)
-                        end
-                    end
-                    arr
-                end
-                node.set_neighbors(neighbors)
-            end
+            full_topology()
         end
 
     be start_gossip(initial_node: USize, rumour: String) =>
@@ -113,12 +118,6 @@ actor Network
 
 actor Main
     new create(env: Env) =>
-        let network1 = Network(10, "linear", "gossip", env) // Create a linear network with 10 nodes
-        let network2 = Network(10, "full", "gossip", env)
+        let network1 = Network(20, "full", "gossip", env)
         network1.setup_topology()
-        var b = System.currentTimeMillis
         network1.start_gossip(0, "Hello, Pony!")
-        println(b-System.currentTimeMillis)
-        network2.setup_topology()
-        network2.start_gossip(0, "Hello, Pony!")
-        println(b-System.currentTimeMillis)
