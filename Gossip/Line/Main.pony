@@ -12,13 +12,22 @@ actor Node3D
     var message: (String | None) = None
     let _rng: Random
     var msg_cnt: USize = 0
+    var algorithm : String
 
-    new create(env': Env, id': U64, x': F64, y': F64, z': F64) =>
+    var s : F64
+    var w : F64
+    var cnt : U64
+
+    new create(env': Env, id': U64, algo: String, x': F64, y': F64, z': F64) =>
         env = env'
         id = id'
         x = x'
         y = y'
         z = z'
+        algorithm = algo
+        s = id.f64()
+        w = 1
+        cnt = 0
         _rng = Rand(Time.nanos())
 
     be add_neighbor(neighbor: Node3D tag) =>
@@ -46,7 +55,13 @@ actor Node3D
                 // var neighbor
                 try
                     let neighbor = neighbors(index)?
-                    neighbor.receive(msg + " " + id.string())
+                    match algorithm
+                    | "gossip" =>
+                        neighbor.receive(msg + " " + id.string())
+                    | "pushsum" =>
+                        // env.out.print("The algo is: " + algorithm)
+                        neighbor.receive_pushSum(msg, s/2, w/2)
+                    end    
                 else
                     env.out.print("No neightbors")
                 end
@@ -57,6 +72,34 @@ actor Node3D
             // end
         else
             None
+        end
+    be receive_pushSum(rumour: String, s': F64, w': F64) =>
+        match message
+        | None =>
+            message = rumour
+            msg_cnt = 1
+            gossip()
+        | let r: String =>
+            if r == rumour then
+                let ratio = s/w
+                // env.out.print(id.string() + " Received the message from Push 0: " + rumour + " convergence ratio: " + ratio.string())
+                s = s + s'
+                w = w + w'
+                let new_ratio = s/w
+                let diff = (ratio - new_ratio).abs()
+                // env.out.print("this is count................" + cnt.string())
+                if cnt<3 then
+                    // env.out.print("this is count................ debug 1" + cnt.string())
+                    gossip()
+                end
+                if (diff <= 0.0000000001) and (cnt < 3) then
+                    // env.out.print("this is count................ debug 2" + cnt.string())
+                    cnt = cnt + 1
+                else
+                    // env.out.print("this is count................ debug 3" + cnt.string())
+                    cnt = 0
+                end
+            end
         end
 
     be print_info() =>
@@ -133,8 +176,8 @@ actor Node
             end
         end
     
-    fun abs(x: F64): F64 =>
-        if x < 0 then -x else x end
+    // fun abs(x: F64): F64 =>
+    //     if x < 0 then -x else x end
     
     be receive_pushSum(rumour: String, s': F64, w': F64) =>
         match _rumour
@@ -144,12 +187,12 @@ actor Node
             spread_gossip()
         | let r: String =>
             if r == rumour then
-                _env.out.print(_id + " Received the message from Push: " + rumour)
+                // _env.out.print(_id + " Received the message from Push: " + rumour)
                 let ratio = s/w
                 s = s + s'
                 w = w + w'
                 let new_ratio = s/w
-                let diff = abs(ratio - new_ratio)
+                let diff = (ratio - new_ratio).abs()
                 if cnt<3 then
                     spread_gossip()
                 end
@@ -252,12 +295,12 @@ actor Network3D
 
     be create_mesh() =>
         // Create a 3x3x3 mesh of nodes
-        let nroot = n.f64().
-        for i in Range(0, 3) do
-            for j in Range(0, 3) do
-                for k in Range(0, 3) do
-                    let id = (i * 9) + (j * 3) + k
-                    let node = Node3D(env, id.u64(), i.f64(), j.f64(), k.f64())
+        var n2 = n*n
+        for i in Range(0, n.usize()) do
+            for j in Range(0, n.usize()) do
+                for k in Range(0, n.usize()) do
+                    let id = (i * n2.usize()) + (j * n.usize()) + k
+                    let node = Node3D(env, id.u64(), algo, i.f64(), j.f64(), k.f64())
                     nodes(id.u64()) = node
                 end
             end
@@ -265,43 +308,45 @@ actor Network3D
 
         // Connect neighboring nodes
         for (id, node) in nodes.pairs() do
-            let i = (id / 9).u64()
-            let j = ((id % 9) / 3).u64()
-            let k = (id % 3).u64()
+            let i = (id / n2).u64()
+            let j = ((id % n2) / n).u64()
+            let k = (id % n).u64()
 
             let neighbors = [
                 (i.i64()-1, j.i64(), k.i64()); (i.i64()+1, j.i64(), k.i64()); (i.i64(), j.i64()-1, k.i64()); (i.i64(), j.i64()+1, k.i64()); (i.i64(), j.i64(), k.i64()-1); (i.i64(), j.i64(), k.i64()+1)
             ]
 
             for (ni, nj, nk) in neighbors.values() do
-                if (ni >= 0) and (ni < 3) and (nj >= 0) and (nj < 3) and (nk >= 0) and (nk < 3) then
-                    let neighbor_id = (ni.u64() * 9) + (nj.u64() * 3) + nk.u64()
+                if (ni >= 0) and (ni < n.i64()) and (nj >= 0) and (nj < n.i64()) and (nk >= 0) and (nk < n.i64()) then
+                    let neighbor_id = (ni.u64() * n2) + (nj.u64() * n) + nk.u64()
                     try
                         node.add_neighbor(nodes(neighbor_id)?)
                     end
                 end
             end
+            if topo == "imp3D" then
+                while true do
+                    // env.out.print(rand_neighbor_id.string() + " " + id.string())
+                    Time.seconds()
+                    rand_neighbor_id = _rng.int(n*n*n)
+                    let ni = (rand_neighbor_id / n2).u64()
+                    let nj = ((rand_neighbor_id % n2) / n).u64()
+                    let nk = (rand_neighbor_id % n).u64()
 
-            while true do
-                env.out.print(rand_neighbor_id.string() + " " + id.string())
-                Time.seconds()
-                rand_neighbor_id = _rng.int(26)
-                let ni = (rand_neighbor_id / 9).u64()
-                let nj = ((rand_neighbor_id % 9) / 3).u64()
-                let nk = (rand_neighbor_id % 3).u64()
-
-                if rand_neighbor_id != id then
-                    let diff: U64 = (ni - i).abs() + (nj - j).abs() + (nk - k).abs()
-                    if diff > 1 then
-                // end
-                // if (ni != (i+1)) and (ni != i) and (ni != (i-1)) and (nj != (j+1)) and (nj != j) and (nj != (j-1)) and (nk != (k+1)) and (nk != k) and (nk != (k-1)) then
-                        try 
-                            node.add_neighbor(nodes(rand_neighbor_id)?)
+                    if rand_neighbor_id != id then
+                        let diff: U64 = (ni - i).abs() + (nj - j).abs() + (nk - k).abs()
+                        if diff > 1 then
+                    // end
+                    // if (ni != (i+1)) and (ni != i) and (ni != (i-1)) and (nj != (j+1)) and (nj != j) and (nj != (j-1)) and (nk != (k+1)) and (nk != k) and (nk != (k-1)) then
+                            try 
+                                node.add_neighbor(nodes(rand_neighbor_id)?)
+                            end
+                            break
                         end
-                        break
-                    end
-                end 
+                    end 
+                end
             end
+            
         end
 
     // Print node information
@@ -310,19 +355,31 @@ actor Network3D
     end
 
     // start gossip from te first node
-    try
-        nodes(0)?.receive("Let's do gossip !!!")
+    match algo
+    | "gossip" =>
+        try
+            nodes(0)?.receive("Let's do gossip !!!")
+        end
+    | "pushsum" =>
+        try
+            nodes(0)?.receive_pushSum("Let's do pushsum gossip !!!", 0, 1)
+        end
     end
+    // try
+    //     nodes(0)?.receive("Let's do gossip !!!")
+    // end
 
 actor Main
     new create(env: Env) =>
         let start = Time.nanos()
         try
             let n = env.args(1)?.usize()?
+            
             let topo = env.args(2)?
             let algo = env.args(3)?
-            if topo == "IMP3D" then
-                let network3d= Network3D(env)
+            if (topo == "imp3D") or (topo == "3D") then
+                let n3 = n.f64().pow(1.0/3.0).u64()
+                let network3d= Network3D(env, n3, topo, algo)
             else
                 if n < 2 then
                     env.out.print("Enter a number greater than 2")
