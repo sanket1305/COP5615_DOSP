@@ -1,4 +1,4 @@
-# COP5635 - DOSP Coursework Repository
+# COP5615 - Distributed Operating System Principles
 
 Welcome to the repository for **COP5635 - Distributed Operating Systems Principles (DOSP)** coursework. This repository contains implementations of three projects, each exploring different aspects of distributed systems using the **actor model** in the **Pony programming language**.
 
