@@ -1,8 +1,6 @@
 use "collections"
 use "crypto"
 
-
-
 interface val Callback
   fun apply(result: (String | None)): None
 
