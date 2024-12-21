@@ -77,8 +77,8 @@ Each project is designed to showcase the power of decentralized systems and effi
 
 1. Clone this repository:
    ```
-   git clone https://github.com/yourusername/COP5635-dosp.git
-   cd COP5635-dosp
+   git clone https://github.com/sanket1305/COP5615_DOSP.git
+   cd COP5615_DOSP
    ```
 
 3. Install Pony:
@@ -97,24 +97,24 @@ Follow the installation guide on the [Pony website](https://www.ponylang.io/).
 ### Running Each Project
 
 #### Project 1: Lucas Square
-    cd Project1-LucasSquare
+    cd project1_lucas_square
     ponyc .
-    ./lucas_square <n>
+    ./project1_lucas_square <n>
 Replace `<n>` with the desired input to compute the Lucas square.
 
 #### Project 2: Gossip Protocol
-    cd Project2-GossipProtocol
+    cd project2_gossip
     ponyc .
-    ./gossip_protocol <topology> <num_nodes> <algorithm>
+    ./project2_gossip <topology> <num_nodes> <algorithm>
 Parameters:
 - `<topology>`: Choose from `linear`, `full`, `3d_grid`, or `imperfect_3d_grid`.
 - `<num_nodes>`: Number of nodes in the network.
 - `<algorithm>`: Specify `gossip` or `pushsum`.
 
 #### Project 3: Chord Protocol
-    cd Project3-ChordProtocol
+    cd project3_chord
     ponyc .
-    ./chord_protocol <num_nodes> <num_keys>
+    ./project3_chord <num_nodes> <num_keys>
 Parameters:
 - `<num_nodes>`: Number of nodes in the Chord ring.
 - `<num_keys>`: Number of keys to be mapped in the DHT.
