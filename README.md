@@ -13,6 +13,7 @@ Welcome to the repository for **COP5635 - Distributed Operating Systems Principl
 - [Installation](#installation)
 - [Usage](#usage)
 - [Technologies Used](#technologies-used)
+- [Collborators](#collaborators)
 
 ---
 
@@ -127,3 +128,11 @@ Parameters:
   - High performance and memory safety without garbage collection pauses.
   
 For more information on Pony, visit [Pony's official documentation](https://www.ponylang.io/).
+
+---
+
+## Collaborators:
+- Sanket Deshmukh (sanket.deshmukh@ufl.edu)
+- Sravani Garapati (sravanigarapati@ufl.edu)
+
+---
