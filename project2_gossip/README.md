@@ -83,8 +83,8 @@ The network topology determines how nodes are connected and influences the speed
 
 1. Clone this repository:
    ```
-   git clone https://github.com/yourusername/gossip-protocol.git
-   cd gossip-protocol
+   git clone https://github.com/sanket1305/COP5615_DOSP.git
+   cd COP5615_DOSP/project2_gossip
    ```
 
 2. Install Pony:
@@ -102,7 +102,7 @@ The network topology determines how nodes are connected and influences the speed
 Run the Gossip Protocol or Push-Sum Algorithm simulation with customizable parameters:
 
 ```
-./gossip_protocol <num_nodes> <topology> <algorithm>
+./project2_gossip <num_nodes> <topology> <algorithm>
 ```
 
 ### Parameters:
@@ -112,7 +112,7 @@ Run the Gossip Protocol or Push-Sum Algorithm simulation with customizable param
 
 ### Example:
 ```
-./gossip_protocol 100 full gossip
+./project2_gossip 100 full gossip
 ```
 This command runs the Gossip Protocol on a full network topology with 100 nodes.
 
