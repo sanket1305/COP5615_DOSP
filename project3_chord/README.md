@@ -73,9 +73,8 @@ This implementation uses the **actor model** in Pony, where each node in the Cho
 
 1. Clone this repository:
     ```
-    git clone https://github.com/yourusername/chord-protocol.git
-    cd chord-protocol
-    text
+    git clone https://github.com/sanket1305/COP5615_DOSP.git
+    cd COP5615_DOSP/project3_chord
     ```
 
 2. Install Pony:
@@ -92,7 +91,7 @@ Follow the installation guide on the [Pony website](https://www.ponylang.io/).
 
 Run the Chord protocol simulation with customizable parameters:
 ```
-./chord_protocol <num_nodes> <num_keys>
+./project3_chord <num_nodes> <num_keys>
 ```
 
 ### Parameters:
@@ -100,8 +99,7 @@ Run the Chord protocol simulation with customizable parameters:
 - `<num_keys>`: Number of keys to distribute across the nodes.
 
 ### Example:
-```./chord_protocol 10 100```
-text
+```./project3_chord 10 100```
 This command creates a Chord ring with 10 nodes and distributes 100 keys among them.
 
 ---
