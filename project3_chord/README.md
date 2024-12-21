@@ -13,8 +13,6 @@ This repository contains an implementation of the **Chord Protocol** using the *
 - [Installation](#installation)
 - [Usage](#usage)
 - [Technologies Used](#technologies-used)
-- [Contributing](#contributing)
-- [License](#license)
 
 ---
 
